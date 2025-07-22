@@ -29,15 +29,15 @@ function App() {
     
     try {
       const tablesData = await blink.db.tables.list({
-        where: { userId: user.id },
-        orderBy: { createdAt: 'desc' }
+        where: { user_id: user.id },
+        orderBy: { created_at: 'desc' }
       })
 
       const tablesWithRows = await Promise.all(
         tablesData.map(async (table) => {
-          const rowsData = await blink.db.tableRows.list({
-            where: { tableId: table.id },
-            orderBy: { createdAt: 'asc' }
+          const rowsData = await blink.db.table_rows.list({
+            where: { table_id: table.id },
+            orderBy: { created_at: 'asc' }
           })
 
           return {
@@ -48,9 +48,9 @@ function App() {
               id: row.id,
               ...JSON.parse(row.data)
             })),
-            createdAt: table.createdAt,
-            updatedAt: table.updatedAt,
-            userId: table.userId
+            createdAt: table.created_at,
+            updatedAt: table.updated_at,
+            userId: table.user_id
           }
         })
       )
@@ -86,7 +86,7 @@ function App() {
         id: tableId,
         name,
         columns: JSON.stringify(columns),
-        userId: user.id
+        user_id: user.id
       })
 
       const newTable: Table = {
@@ -139,7 +139,7 @@ function App() {
     try {
       await blink.db.tables.update(activeTable.id, {
         columns: JSON.stringify(updatedColumns),
-        updatedAt: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
 
       const updatedTable = { ...activeTable, columns: updatedColumns }
@@ -170,7 +170,7 @@ function App() {
     try {
       await blink.db.tables.update(activeTable.id, {
         columns: JSON.stringify(updatedColumns),
-        updatedAt: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
 
       const updatedTable = { ...activeTable, columns: updatedColumns }
@@ -194,7 +194,7 @@ function App() {
     try {
       await blink.db.tables.update(activeTable.id, {
         columns: JSON.stringify(updatedColumns),
-        updatedAt: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
 
       // Remove column data from all rows
@@ -206,7 +206,7 @@ function App() {
       // Update all rows in database
       await Promise.all(
         updatedRows.map(row =>
-          blink.db.tableRows.update(row.id, {
+          blink.db.table_rows.update(row.id, {
             data: JSON.stringify(row)
           })
         )
@@ -242,11 +242,11 @@ function App() {
     })
 
     try {
-      await blink.db.tableRows.create({
+      await blink.db.table_rows.create({
         id: rowId,
-        tableId: activeTable.id,
+        table_id: activeTable.id,
         data: JSON.stringify(newRowData),
-        userId: user.id
+        user_id: user.id
       })
 
       const updatedRows = [...activeTable.rows, newRowData]
@@ -278,7 +278,7 @@ function App() {
     try {
       const updatedRow = updatedRows.find(r => r.id === rowId)
       if (updatedRow) {
-        await blink.db.tableRows.update(rowId, {
+        await blink.db.table_rows.update(rowId, {
           data: JSON.stringify(updatedRow)
         })
 
@@ -300,7 +300,7 @@ function App() {
     if (!activeTable) return
 
     try {
-      await blink.db.tableRows.delete(rowId)
+      await blink.db.table_rows.delete(rowId)
 
       const updatedRows = activeTable.rows.filter(row => row.id !== rowId)
       const updatedTable = { ...activeTable, rows: updatedRows }
